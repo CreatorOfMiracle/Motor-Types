@@ -31,6 +31,8 @@ from typing_extensions import Self
 HAS_SSL: bool
 ssl: ModuleType
 
+_Self = typing.TypeVar('_Self')
+
 _Value = typing.TypeVar('_Value')
 # _Document = typing.TypeVar('_Document', bound=typing.Mapping[str, typing.Any])
 _Type = typing.TypeVar('_Type', bound=typing.Type)
@@ -42,7 +44,7 @@ _Collection = typing.Union[
     pymongo.collection.Collection[_Document], AgnosticCollection
 ]
 _Database = typing.Union[pymongo.database.Database[_Document], AgnosticDatabase]
-_Pipeline = typing.Sequence[typing.Mapping[str, typing.Any]]
+_Pipeline = list[dict[str, typing.Any]]
 _Session = typing.Union[pymongo.client_session.ClientSession, AgnosticClientSession]
 _ReadPreferences = typing.Union[
     pymongo.read_preferences.Primary,
@@ -799,14 +801,14 @@ class AgnosticCollection(AgnosticBaseProperties):
     ) -> AgnosticChangeStream: ...
 
     def with_options(
-            self,
+            self: _Self,
             codec_options: typing.Optional[
                 bson.codec_options.CodecOptions[typing.Any]
             ] = None,
             read_preference: typing.Optional[_ReadPreferences] = None,
             write_concern: typing.Optional[pymongo.write_concern.WriteConcern] = None,
             read_concern: typing.Optional[pymongo.read_concern.ReadConcern] = None,
-    ) -> Self: ...
+    ) -> _Self: ...
 
 
 class AgnosticBaseCursor(AgnosticBase):
@@ -820,11 +822,11 @@ class AgnosticBaseCursor(AgnosticBase):
             self, cursor: pymongo.cursor.Cursor[_Document], collection: AgnosticCollection
     ) -> None: ...
 
-    def __aiter__(self) -> Self: ...
-
-    async def __aenter__(self) -> Self: ...
+    def __aiter__(self: _Self) -> _Self: ...
 
     async def __anext__(self) -> _Document: ...
+
+    async def __aenter__(self) -> Self: ...
 
     async def __aexit__(
             self,
@@ -898,7 +900,7 @@ class AgnosticCursor(AgnosticBaseCursor):
 
     def hint(self, index: typing.Optional[_Index]) -> Self: ...
 
-    def limit(self, limit: int) -> Self: ...
+    def limit(self: _Self, limit: int) -> _Self: ...
 
     def max(self, spec: _Index) -> Self: ...
 
@@ -914,15 +916,17 @@ class AgnosticCursor(AgnosticBaseCursor):
 
     def rewind(self) -> Self: ...
 
-    def skip(self, skip: int) -> Self: ...
+    def skip(self, skip: int) -> "AgnosticCursor": ...
 
     def sort(
             self,
             key_or_list: _Key_or_Index,
             direction: typing.Optional[typing.Union[int, str]] = None,
-    ) -> Self: ...
+    ) -> "AgnosticCursor": ...
 
     def where(self, code: typing.Union[str, bson.code.Code]) -> Self: ...
+
+    def batch_size(self, batch_size: int) -> "AgnosticCursor": ...
 
 
 class AgnosticRawBatchCursor(AgnosticCursor):
