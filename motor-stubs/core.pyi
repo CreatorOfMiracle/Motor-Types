@@ -31,7 +31,7 @@ from typing_extensions import Self
 HAS_SSL: bool
 ssl: ModuleType
 
-# _Self = typing.TypeVar('_Self')
+_Self = typing.TypeVar('_Self')
 
 _Value = typing.TypeVar('_Value')
 # _Document = typing.TypeVar('_Document', bound=typing.Mapping[str, typing.Any])
@@ -801,14 +801,14 @@ class AgnosticCollection(AgnosticBaseProperties):
     ) -> AgnosticChangeStream: ...
 
     def with_options(
-            self: "AgnosticCollection",
+            self: _Self,
             codec_options: typing.Optional[
                 bson.codec_options.CodecOptions[typing.Any]
             ] = None,
             read_preference: typing.Optional[_ReadPreferences] = None,
             write_concern: typing.Optional[pymongo.write_concern.WriteConcern] = None,
             read_concern: typing.Optional[pymongo.read_concern.ReadConcern] = None,
-    ) -> "AgnosticCollection": ...
+    ) -> _Self: ...
 
 
 class AgnosticBaseCursor(AgnosticBase):
@@ -822,7 +822,7 @@ class AgnosticBaseCursor(AgnosticBase):
             self, cursor: pymongo.cursor.Cursor[_Document], collection: AgnosticCollection
     ) -> None: ...
 
-    def __aiter__(self: "AgnosticCollection") -> "AgnosticCollection": ...
+    def __aiter__(self: _Self) -> _Self: ...
 
     async def __aenter__(self) -> Self: ...
 
